@@ -63,6 +63,8 @@ macOS / Linux：
 
 项目明确使用 `/chat/completions` 接口。非标准工具调用、推理字段和服务商特有参数不在支持范围内；这类需求应改用对应的 LangChain 专用集成。部分模型不支持本项目的 `temperature` 或 `max_tokens` 参数，需要按服务商文档调整 `assistant.py` 中的模型参数。
 
+已实测的 DeepSeek 配置：模型名称填写 `deepseek-flash`，API 地址填写 `https://api.deepseek.com`，API Key 填写自己的 DeepSeek 密钥。依据 [DeepSeek 官方接口说明](https://api-docs.deepseek.com/quick_start/agent_integrations/)，本应用使用 OpenAI 兼容格式；`https://api.deepseek.com/anthropic` 属于另一种接口格式，不应填入本应用的 API 地址。
+
 ### 方式二：本地 Ollama
 
 先按照 [Ollama 官方说明](https://github.com/ollama/ollama)安装并启动服务，下载适合电脑内存和算力的模型：
@@ -143,7 +145,19 @@ Windows 执行：
 
 2026 年 11 月 3 日在 Windows、Python 3.12.14 环境验证：12 项自动化测试全部通过，`python -m pip check` 未发现依赖冲突。
 
-**自动化测试不需要真实 API Key，测试替身仅存在于测试代码。通过这些测试不等于真实模型已联调成功。** 真实模型的连通性、回答质量与硬件性能，需配置 API 或 Ollama 后按照第 4 节再验证。仓库包含 GitHub Actions，推送后可在 Actions 页面查看测试结果。
+**自动化测试不需要真实 API Key，测试替身仅存在于测试代码。** 仓库包含 GitHub Actions，推送后可在 Actions 页面查看测试结果。
+
+另于 **2026 年 11 月 3 日**，通过项目原有 `create_model` 和 `run_task` 调用链，使用 DeepSeek 官方接口 `https://api.deepseek.com`、模型 `deepseek-flash` 完成三项真实模型验证：
+
+| 功能 | 输入 | 实测结果 | 耗时 |
+| --- | --- | --- | --- |
+| 知识讲解 | Git 工作区、暂存区和版本库的区别 | 成功；含概念、例子、误区与复习建议 | 7.56 秒 |
+| 资料摘要 | `examples/git_basics.txt` | 成功；给出主题、5 个要点和关键术语 | 12.81 秒 |
+| 生成自测题 | `examples/git_basics.txt` | 成功；3 道单项选择题，每题 4 个选项，附答案和解析 | 9.25 秒 |
+
+三次响应的 `finish_reason` 均为 `stop`，未因输出长度限制截断。人工复核后，讲解与摘要中的 Git 概念正确，自测题的答案和解析与输入资料一致。接口报告的总用量为 2608 tokens；耗时、用量和生成内容仅代表本次测试，不构成固定性能指标。
+
+实测密钥通过隐藏终端输入，只在测试进程内存中使用，没有保存到源码、配置文件或仓库。复现时需要填写自己的有效 API Key，或使用已安装模型的 Ollama。本次未测试本地 Ollama 的真实推理。
 
 ## 8. 常见问题
 
@@ -166,4 +180,4 @@ Windows 执行：
 
 ## 10. 作业提交
 
-在课程平台上传本仓库的 **README.md**，并附上本文开头的公开仓库链接。演示前先完成真实模型配置与一次生成验证。课程页面要求的交付物是 README 和仓库链接，没有要求沿用其他作业的 Word 封面或五页格式。
+在课程平台上传本仓库的 **README.md**，并附上本文开头的公开仓库链接。三项功能均已通过 DeepSeek 真实调用验证；演示时仍需要在页面填写自己的模型配置。课程页面要求的交付物是 README 和仓库链接，没有要求沿用其他作业的 Word 封面或五页格式。

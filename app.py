@@ -48,7 +48,6 @@ with st.sidebar:
 
 st.title("学习助手")
 st.write("讲清一个概念，整理一段资料，再用三道题检验理解。")
-st.caption("开源软件构建技术 · 第七章智能应用开发 · LangChain")
 
 mode = st.radio("选择学习任务", list(MODES), horizontal=True)
 with st.expander("试试示例"):
